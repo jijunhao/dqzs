@@ -330,17 +330,12 @@ export default class PlayerAttributeMgr {
 					betterAttributes = true;
 				}	
 			
-			} else {
-				if (level >= (this.equipmentData[index][equipmentType].level - 1) && parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * offsetMultiplier) {
-					if (showResult) logger.error(`[装备] ${newEquipmentDesc} 等级${level} 大于 分身${this.separationNames[index]} ${this.equipmentData[index][equipmentType].level} 且攻击属性 ${attributeList.attack.value} 大于 ${existingAttributeList.attack.value} * ${offsetMultiplier} = ${existingAttributeList.attack.value * offsetMultiplier}`);
+			} else if (!rule.strictMode){
+				// 如果攻击属性大于原装备
+				if (parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * offsetMultiplier) {
+					if (showResult) logger.info(`[装备] 新装备 ${DBMgr.inst.getAttribute(attackType)} ${attributeList.attack.value} 大于 分身原装备 ${existingAttributeList.attack.value} * ${offsetMultiplier} = ${existingAttributeList.attack.value * offsetMultiplier}`);
 					betterAttributes = true;
 				}
-				
-				// 无视等级差异 属性高于概率偏移值
-				if (existingExist && parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * (1 + rule.probOffset)) {
-					if (showResult) logger.warn(`[装备] 新装备属性极佳！无视等级差异和品质！ ${DBMgr.inst.getAttribute(attackType)} ${attributeList.attack.value} 大于 ${existingAttributeList.attack.value} * ${1 + rule.probOffset} = ${existingAttributeList.attack.value * (1 + rule.probOffset)}`);
-					betterAttributes = true;
-				}	
 			}
 			
 

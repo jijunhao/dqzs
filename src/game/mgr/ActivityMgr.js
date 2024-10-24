@@ -40,7 +40,7 @@ export default class ActivityMgr {
     constructor() {
         // 存储已激活的活动 ID
         this.activatedActivities = new Set();
-        this.blackActId = [9788692, 9788784, 9788754];
+        this.blackActId = [9788692, 9788784, 9788754, 9989466, 9989550, 9989594];
 
         // 活动主数据map
         this.actMainConfigMap = {};

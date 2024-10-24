@@ -98,8 +98,9 @@ export default class UnionMgr {
             }
 
             if (t.status == 1) {
-                if ( t.bargainPrice.toNumber() >= 2888 - this.unionBargainPrice || t.bargainTimes == t.bargainNum - this.unionBargainNum) {
-                    logger.info(`[妖盟管理] 砍到最低价，开始购买`);
+                logger.info(`[妖盟管理] 当前价格${2888 - t.bargainPrice.toNumber()}，已砍价人数${t.bargainTimes}，总人数${t.bargainNum}`);
+                if ( t.bargainPrice.toNumber() >= 2888 - this.unionBargainPrice && t.bargainTimes >= t.bargainNum - this.unionBargainNum) {
+                    logger.info(`[妖盟管理] 砍到最低价${2888-t.bargainPrice.toNumber()}，开始购买`);
                     GameNetMgr.inst.sendPbMsg(Protocol.S_CUT_PRICE_BUY, { bussinessId: t.bussinessId });
                 }
             }

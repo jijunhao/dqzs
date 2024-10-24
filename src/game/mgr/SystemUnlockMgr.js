@@ -78,6 +78,7 @@ export default class SystemUnlockMgr {
         69: "STARTRIAL",             // 星宿试炼
         70: "GATHERENERGY",          // 聚灵阵
         76: "SOARING",               // 登天
+        80: "GOD_BODY",              
         84: "SKY_WAR",               // 征战诸天
         90: "WORLD_RULE",            // 天地法则
         91: "RULE_TRIAL",            // 法则试炼

@@ -6,7 +6,6 @@ import DBMgr from "#game/common/DBMgr.js";
 import PlayerAttributeMgr from "#game/mgr/PlayerAttributeMgr.js";
 import SystemUnlockMgr from "#game/mgr/SystemUnlockMgr.js";
 import LoopMgr from "#game/common/LoopMgr.js";
-import RegistMgr from "#game/common/RegistMgr.js";
 
 export default class YueBaoMgr {
     constructor() {

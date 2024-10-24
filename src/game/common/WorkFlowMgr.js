@@ -87,8 +87,10 @@ export default class WorkFlowMgr {
     }
 
     remove(name) {
-        this.queue = this.queue.filter(task => task !== name);
-        this.sortQueue();
+        if (this.queue.includes(name)) {
+            this.queue = this.queue.filter(task => task !== name);
+            this.sortQueue();
+        }
     }
 }
 

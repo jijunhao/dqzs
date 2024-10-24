@@ -241,7 +241,7 @@ export default class PlayerAttributeMgr {
         const attackType = attributeList.attack.type;
         const defenseType = attributeList.defense.type;
         let originalEquipmentDesc;
-        const newEquipmentDesc = `${DBMgr.inst.getEquipmentQuality(quality)} ${DBMgr.inst.getEquipmentName(equipmentId)} ${DBMgr.inst.getAttribute(attackType)}:${attributeList.attack.value / 10} ${DBMgr.inst.getAttribute(defenseType)}:${attributeList.defense.value / 10}`;
+        const newEquipmentDesc = `${DBMgr.inst.getEquipmentQuality(quality)} ${DBMgr.inst.getEquipmentName(equipmentId)} ${DBMgr.inst.getAttribute(attackType)}:${attributeList.attack.value / 10} ${DBMgr.inst.getAttribute(defenseType)}:${attributeList.defense.value / 10} 攻击：${attributeList.basic[1]} 生命：${attributeList.basic[2]} 防御：${attributeList.basic[3]} 敏捷：${attributeList.basic[4]}`;
 
         // 判断使用的条件类型
         const conditions = rule.strictMode ? rule.strictConditions : rule.condition;
@@ -259,20 +259,37 @@ export default class PlayerAttributeMgr {
             betterAttributes = true;
             existingExist = false;
             logger.warn(`[装备] 分身${this.separationNames[index]} 无原装备`);
-            // logger.warn(`${JSON.stringify(this.equipmentData[index])}`);
+            //logger.warn(`${JSON.stringify(this.equipmentData[index])}`);
         } else {
             // 分身装备属性转换
             existingAttributeList = this.processAttributes(this.equipmentData[index][equipmentType].attributeList);
-            originalEquipmentDesc = `${DBMgr.inst.getEquipmentQuality(this.equipmentData[index][equipmentType].quality)} ${DBMgr.inst.getEquipmentName(this.equipmentData[index][equipmentType].equipmentId)} ${DBMgr.inst.getAttribute(existingAttributeList.attack.type)}:${existingAttributeList.attack.value / 10} ${DBMgr.inst.getAttribute(existingAttributeList.defense.type)}:${existingAttributeList.defense.value / 10}`;
+            originalEquipmentDesc = `${DBMgr.inst.getEquipmentQuality(this.equipmentData[index][equipmentType].quality)} ${DBMgr.inst.getEquipmentName(this.equipmentData[index][equipmentType].equipmentId)} ${DBMgr.inst.getAttribute(existingAttributeList.attack.type)}:${existingAttributeList.attack.value / 10} ${DBMgr.inst.getAttribute(existingAttributeList.defense.type)}:${existingAttributeList.defense.value / 10} 攻击：${existingAttributeList.basic[1]} 生命：${existingAttributeList.basic[2]} 防御：${existingAttributeList.basic[3]} 敏捷：${existingAttributeList.basic[4]}`;
         }
 
         // 装备属性和等级判断
         if (!betterAttributes && quality >= rule.quality) {
-            if (showResult) {
-                logger.debug(`[装备] 新装备的装备品质和属性符合，如换该装备，装备的妖力偏移为: ${fightValue - this.separationFightValue[index]} ,正为增加，负数为减低`);
-                logger.info(`[装备] 新装备品质符合：${newEquipmentDesc} 等级：${level} 与原装备对比 ${originalEquipmentDesc} 等级：${this.equipmentData[index][equipmentType].level}，如换该装备，妖力偏移：${fightValue - this.separationFightValue[index]}`);
-            }
+			if (showResult) {
+                logger.info(`[装备] 新装备品质符合：${newEquipmentDesc} 等级：${level}`);
+				logger.info(`[装备] 原装备品质对比: ${originalEquipmentDesc} 等级：${this.equipmentData[index][equipmentType].level} 如果替换新装备, 妖力偏移：${fightValue-this.separationFightValue[index]}`);
+			}
+			
+			let higherCount = 0;
+			let betterAttributesDetails = [];
+			const attributeNames = ['攻击', '生命', '防御', '敏捷'];
 
+			// 检查新装备基础属性中有几个比原始装备的高
+			for (let i = 1; i <= 4; i++) {
+				if (attributeList.basic[i] >= existingAttributeList.basic[i]) {
+					higherCount++;
+					betterAttributesDetails.push(attributeNames[i-1]);
+				}
+			}
+
+			if (showResult) {
+				const betterAttributesMessage = betterAttributesDetails.join(', ') || '无';
+				logger.info(`[装备] 新装备有${higherCount}个基础属性优于原装备！ 更优秀的属性：${betterAttributesMessage}`);
+			}
+			
             // 在 levelDiff 在 0 - levelOffset 范围内时进行线性插值计算，而在 levelDiff > levelOffset 时进行平方处理
             const levelOffset = rule.levelOffset || 5;
             const levelDiff = level - this.equipmentData[index][equipmentType].level;
@@ -290,12 +307,42 @@ export default class PlayerAttributeMgr {
 
             // 确保 offsetMultiplier 不会超过 1
             offsetMultiplier = Math.min(offsetMultiplier, 1);
-
-            logger.info(`[装备] ${attributeList.attack.value} 大于 ${existingAttributeList.attack.value} * ${offsetMultiplier} = ${existingAttributeList.attack.value * offsetMultiplier}`)
-            if (level >= (this.equipmentData[index][equipmentType].level - 1) && parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * offsetMultiplier) {
-                if (showResult) logger.error(`[装备] ${newEquipmentDesc} 等级${level} 大于 分身${this.separationNames[index]} ${this.equipmentData[index][equipmentType].level} 且攻击属性 ${attributeList.attack.value} 大于 ${existingAttributeList.attack.value} * ${offsetMultiplier} = ${existingAttributeList.attack.value * offsetMultiplier}`);
-                betterAttributes = true;
-            }
+			
+			// 如果是严格模式  新装备的抗性大于老装备
+			if (rule.strictMode && parseFloat(attributeList.defense.value) >= parseFloat(existingAttributeList.defense.value)){
+				// 如果攻击属性大于原装备
+				if (parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * offsetMultiplier) {
+					if (showResult) logger.info(`[装备] 新装备 ${DBMgr.inst.getAttribute(attackType)} ${attributeList.attack.value} 大于 分身原装备 ${existingAttributeList.attack.value} * ${offsetMultiplier} = ${existingAttributeList.attack.value * offsetMultiplier}`);
+					betterAttributes = true;
+				
+					// 如果新装备品质下降且基础属性不提升，则不替换
+					if (quality < this.equipmentData[index][equipmentType].quality && higherCount < 1 ) {
+						logger.warn(`[装备] 新装备品质及基础属性全部下降, 不替换`)
+						betterAttributes = false;
+					}
+				
+				}
+				
+				
+				// 无视等级差异 属性高于概率偏移值
+				if (existingExist && parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * (1 + rule.probOffset)) {
+					if (showResult) logger.warn(`[装备] 新装备属性极佳！无视等级差异和品质！ ${DBMgr.inst.getAttribute(attackType)} ${attributeList.attack.value} 大于 ${existingAttributeList.attack.value} * ${1 + rule.probOffset} = ${existingAttributeList.attack.value * (1 + rule.probOffset)}`);
+					betterAttributes = true;
+				}	
+			
+			} else {
+				if (level >= (this.equipmentData[index][equipmentType].level - 1) && parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * offsetMultiplier) {
+					if (showResult) logger.error(`[装备] ${newEquipmentDesc} 等级${level} 大于 分身${this.separationNames[index]} ${this.equipmentData[index][equipmentType].level} 且攻击属性 ${attributeList.attack.value} 大于 ${existingAttributeList.attack.value} * ${offsetMultiplier} = ${existingAttributeList.attack.value * offsetMultiplier}`);
+					betterAttributes = true;
+				}
+				
+				// 无视等级差异 属性高于概率偏移值
+				if (existingExist && parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * (1 + rule.probOffset)) {
+					if (showResult) logger.warn(`[装备] 新装备属性极佳！无视等级差异和品质！ ${DBMgr.inst.getAttribute(attackType)} ${attributeList.attack.value} 大于 ${existingAttributeList.attack.value} * ${1 + rule.probOffset} = ${existingAttributeList.attack.value * (1 + rule.probOffset)}`);
+					betterAttributes = true;
+				}	
+			}
+			
 
             // 去掉当前身上不符合条件的装备
             const primaryMatch = rule.strictMode ? conditions[index].primaryAttribute.includes(existingAttributeList.attack.type) : conditions[index].includes(existingAttributeList.attack.type);
@@ -304,12 +351,6 @@ export default class PlayerAttributeMgr {
                 if (showResult) logger.error(`[装备] 分身${this.separationNames[index]} 已装备的主属性或副属性不符合期望`);
                 betterAttributes = true;
             }
-        }
-
-        // 无视品质 属性高于概率偏移值
-        if (existingExist && parseFloat(attributeList.attack.value) >= parseFloat(existingAttributeList.attack.value) * (1 + rule.probOffset)) {
-            if (showResult) logger.error(`[装备] ${newEquipmentDesc} 攻击属性 ${attributeList.attack.value} 大于 分身${this.separationNames[index]} ${existingAttributeList.attack.value} * ${1 + rule.probOffset} = ${existingAttributeList.attack.value * (1 + rule.probOffset)}`);
-            betterAttributes = true;
         }
 
         // 无视品质和属性偏移（首先是属性符合，不管属性比原来低还是高,只要妖力高就替换）
@@ -322,9 +363,15 @@ export default class PlayerAttributeMgr {
 
         if (betterAttributes) {
             if (existingExist) {
-                logger.info(`[装备] 分身${this.separationNames[index]} 原装备 ${originalEquipmentDesc}`);
+                logger.info(`[装备] 分身${this.separationNames[index]} 存在原装备 ${originalEquipmentDesc}`);
             }
-            logger.warn(`[装备] 分身${this.separationNames[index]} 新装备 ${newEquipmentDesc}, 该分身换装前妖力: ${this.separationFightValue[index]}, 换装后妖力偏移: ${fightValueOffset}`);
+			
+			// 妖力降低时发出警告
+			if (fightValue>=this.separationFightValue[index]) {
+				logger.info(`[装备] 分身${this.separationNames[index]} 替换新装备 ${newEquipmentDesc} 妖力偏移：${fightValueOffset}`);
+			}else {
+                logger.warn(`[装备] 分身${this.separationNames[index]} 替换新装备 ${newEquipmentDesc} 妖力偏移：${fightValueOffset}`);
+			}
 
             // 存储当前分身妖力，防止未切换，妖力未更新
             this.separationFightValue[index] = fightValue;

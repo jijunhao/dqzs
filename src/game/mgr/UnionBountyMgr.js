@@ -4,6 +4,7 @@ import logger from "#utils/logger.js";
 import LoopMgr from "#game/common/LoopMgr.js";
 import UnionMgr from '#game/mgr/UnionMgr.js';
 import DBMgr from "#game/common/DBMgr.js";
+import UserMgr from "#game/mgr/UserMgr.js";
 
 export default class UnionBountyMgr {
     constructor() {
@@ -75,22 +76,24 @@ export default class UnionBountyMgr {
         this.bountyTimes = t.playerData.bountyTimes;
         this.helpTimes = t.playerData.helpTimes;
 
-        //悬赏信息, 只做了普通押送，怪兽没有抓到数据需要等~
+        // 当前配置ID
         const curConfigId = t.bountyInfo.curConfigId;
-
-        // 判断是否完成，完成了领取奖励，未完成，则判断myCart在地图上有没有，没有就开始押送，有就继续等待完成
+        // 当为异兽镇压时，此字段不为空
+        const monsterPower = t.bountyInfo.monsterPower;
+        // 当悬赏完成时，此字段不为空
         const finishReward = t.bountyInfo.finishReward;
-        if (finishReward) {
-            const reward = finishReward?.reward.split('|');
-            logger.info(`[妖盟悬赏] 悬赏完成,奖励领取,奖励内容:${reward.map(element => {
-                const [key, value] = element.split('=');
-                return `${DBMgr.inst.getLanguageWord(`Items-${key}`)}:${value}`
-            })}`);
 
+        // 先判断是否完成，完成了就领取奖励
+        if (finishReward) {
             // 领取悬赏奖励
-            this.UnionBountyGetRewardEscortReq();
-            // sleep 1秒钟后继续
+            this.UnionBountyGetRewardEscortReq(finishReward);
         } else {
+            // 如果是镇压异兽,打开异兽界面
+            if (monsterPower) {
+                GameNetMgr.inst.sendPbMsg(Protocol.S_UNION_BOUNTY_OPEN_MONSTER, { playerId: UserMgr.playerId });
+            }
+
+
             if (this.myCart == null && this.bountyTimes < 2) {
                 logger.info(`[妖盟悬赏] 开始押送悬赏`)
                 GameNetMgr.inst.sendPbMsg(Protocol.S_UNION_BOUNTY_DEAL_BOUNTY, { curConfigId: curConfigId, type: this.groupType });
@@ -99,11 +102,36 @@ export default class UnionBountyMgr {
         }
     }
 
+    // 妖兽打开后,返回结果，处理妖兽镇压
+    async UnionBountyOpenMonsterResp(t) {
+        logger.error(`[妖盟悬赏] 妖盟悬赏为，异兽镇压，目前暂无法处理异兽镇压的数据请求，请手动处理`);
+
+        const joinPeople = t.headAndFightMsg.length;
+        // 是否要判断加入人数3才开始镇压，这里自己请求返回则为0,别人请求则为实际的玩家数据,不好搞
+        if (joinPeople === 3) {
+            // 返回结果后，这里如果是自己请求，无法知道参与人数
+            const teamPlayerList = t.headAndFightMsg?.map((item, index) => {
+                return {
+                    playerId: item.headInfo?.headInfo?.playerId,
+                    pos: index
+                }
+            });
+
+            const bossId = t.battleMainList?.find(item => Number(UserMgr.playerId) == Number(item.playerId))?.objId;
+            GameNetMgr.inst.sendPbMsg(Protocol.S_UNION_BOUNTY_ATTACK_MONSTER, { teamPlayerList, bossId });
+        }
+    }
 
     // 领取悬赏奖励
-    UnionBountyGetRewardEscortReq() {
+    UnionBountyGetRewardEscortReq(finishReward) {
         logger.info(`[妖盟悬赏] 领取悬赏奖励`)
         GameNetMgr.inst.sendPbMsg(Protocol.S_UNION_BOUNTY_GET_REWARD_ESCORT, {});
+
+        const reward = finishReward?.reward.split('|');
+        logger.info(`[妖盟悬赏] 悬赏完成,奖励领取,奖励内容:${reward.map(element => {
+            const [key, value] = element.split('=');
+            return `${DBMgr.inst.getLanguageWord(`Items-${key}`)}:${value}`
+        })}`);
     }
 
     async loopUpdate() {

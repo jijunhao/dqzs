@@ -36,6 +36,7 @@ enum PackagesBaseProtocols{
     ShuraBattle_applyJoinTeam =  215910; 
     YARD_LOGIN_SYNC = 215843;                         
     YARD_BUILD_UP_SYNC = 215851;                      
+    Career_Sync_Player_Data = 218002;                 
 }
 message SkyWarDataLoginSync {
     optional int32 battleTimes = 1; 
@@ -60,6 +61,22 @@ message UnionDuelBattleResultMsg {
     optional int32 flag = 3; 
     optional int32 star = 4; 
     optional int32 curPeople = 5; 
+}
+message CareerPlayerDataMsg{
+  optional int32 careerType = 1;
+  optional CareerTalentNodeData maxTalentNode = 2;
+  optional int32 changeCareerTimesToday = 3;
+  optional CareerBossData bossData = 4;
+  optional int64 firstSwitchCareerTime = 5;
+}
+message CareerTalentNodeData{
+  optional int32 talentId = 1;
+  optional int32 lv = 2;
+}
+message CareerBossData{
+  optional int32 hasPassBossId = 1;
+  optional int32 battleTimesToday = 2;
+  optional int32 repeatTimesToday = 3;
 }
 message UnionDuelSyncDataReq{
     required int64 unionId = 1;
@@ -90,7 +107,7 @@ message UnionDuelBaseMsg {
     optional int64 unionId = 1; 
     optional string unionName = 2; 
     optional int32 flag = 3; 
-    optional int64 power = 4; 
+    optional string power = 4; 
     optional int32 star = 5; 
     optional int32 curPeople = 6; 
     optional int32 maxPeople = 7; 
@@ -133,7 +150,7 @@ message RuleTrialDataSync {
 }
 message RuleTrialBossPowerData{
     required int32 bossId = 1; 
-    required int64 power = 2; 
+    required string power = 2; 
 }
 message RuleTrialBossConfigSyncMsg{
     repeated RuleTrialBossPowerData data = 1; 
@@ -470,7 +487,7 @@ message FairyLandHeartDevilInfo{
     optional int64 lastRefreshTime = 3;
 }
 message FairyLandBattleInfo{
-    required int64 hp = 1;
+    required string hp = 1;
     optional int64 maxHpTime = 2;
     repeated PlayerAppearanceDataMsg members = 3; 
 }
@@ -522,6 +539,16 @@ message CheckFairyPoolResp {
 message YardLoginSync{
     optional bool pieceShopOpen = 1; 
     optional string grassNum = 2; 
+    repeated YardDecorateData decorateList = 3;
+    repeated YardCombineData combineList = 4;
+}
+message YardDecorateData{
+  required int32 buildId = 1;
+  required int32 lv = 2; 
+}
+message YardCombineData{
+  required int32 combineId = 1;
+  required int32 lv = 2; 
 }
 message YardBuildUpSync{
     repeated YardBuildUpData data = 1;
@@ -538,4 +565,10 @@ message ShuraBattleApplyReq {
 message ShuraBattleApplyResp {
   required int32 ret = 1;
   repeated int64 applyTeamIdList = 7; 
+}
+message UnionHonorHallLoginSync {
+    optional bool isOpen = 1; 
+}
+message UnionCeremonyLoginSync {
+    optional int64 lastEndTime = 1; 
 }

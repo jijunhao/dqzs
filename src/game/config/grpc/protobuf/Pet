@@ -62,6 +62,7 @@ message PetDataMsg {
     repeated int32 equipKernelId = 17; 
     optional int32 rootLv = 18;    
     optional int32 awakeLv = 19;   
+    optional int32 stageLv = 20;   
 }
 message PetPassiveSkillMsg {
     required int32 skillId = 1; 
@@ -208,6 +209,7 @@ message PetLockReq {
     required int32 petId = 1;
     required int32 stat = 2; 
     optional string passwd = 3; 
+    optional string oldPasswd = 4; 
 }
 message PetLockResp {
     required int32 ret = 1;
@@ -269,4 +271,20 @@ message PetUpSkinCombineReq {
 message PetUpSkinCombineResp {
     required int32 ret = 1;
     optional PetSkinCombineDataMsg combine = 2;
+}
+message GodPetStageUpReq {
+    optional int32 petId = 1;   
+    optional int32 unlock = 2;   
+}
+message GodPetStageUpResp {
+    required int32 ret = 1;
+    optional PetDataMsg petData = 2; 
+}
+message GodPetStageResetReq{
+    required int32 petId = 1;   
+}
+message GodPetStageResetResp{
+    required int32 ret = 1;
+    optional PetDataMsg petData = 2; 
+    optional string rewards = 3;
 }

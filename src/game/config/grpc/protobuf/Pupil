@@ -70,7 +70,7 @@ message PupilDataMsg {
     repeated AttributeDataMsg baseAttr = 9;     
     optional AttributeDataMsg battleAttr = 10;  
     optional CoupleDataMsg coupleData = 11;     
-    optional int64 pupilFightValue = 12;        
+    optional string pupilFightValue = 12;        
     optional int32 evaluateParam = 13;          
     optional int32 isLock =14; 
 }
@@ -89,7 +89,7 @@ message SectInfoMsg {
 message PupilRank{
     optional int64 playerId = 1;                
     optional string ownerName = 2;                
-    optional int64 fightValue = 3;                
+    optional string fightValue = 3;                
     optional PupilDataMsg pupilData = 4;          
 }
 message FightPupilDataMsg{

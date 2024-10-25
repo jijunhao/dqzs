@@ -15868,11 +15868,21 @@
     {
         "smMethod": "CityMsg.WorldMessageListMsg"
     },
-    null,
-    null,
-    null,
-    null,
-    null,
+    {
+        "smMethod": "CityMsg.FriendGetListResp"
+    },
+    {
+        "smMethod": "CityMsg.FriendSendResp"
+    },
+    {
+        "smMethod": "CityMsg.FriendReceiveResp"
+    },
+    {
+        "smMethod": "CityMsg.FriendReceiveAllResp"
+    },
+    {
+        "smMethod": "CityMsg.FriendDeleteResp"
+    },
     null,
     null,
     null,

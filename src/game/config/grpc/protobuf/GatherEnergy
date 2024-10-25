@@ -144,6 +144,7 @@ message GatherEnergyEnterNewResp{
     repeated int64 serverId = 4; 
     optional GatherEnergyMsg gatherEnergy = 5;  
     optional int32 totalNum = 6;  
+    optional int32 totalAttendNum = 7;  
 }
 message GatherEnergyFirstListViewReq{
     required int32 offset = 1;      

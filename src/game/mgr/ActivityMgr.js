@@ -4,6 +4,7 @@ import logger from "#utils/logger.js";
 import AdRewardMgr from "#game/mgr/AdRewardMgr.js";
 import LoopMgr from "#game/common/LoopMgr.js";
 import DBMgr from "#game/common/DBMgr.js";
+import BigNumber from "bignumber.js";
 
 const actNameMap = {
     10132651: "仙域商途",
@@ -30,7 +31,21 @@ const actNameMap = {
     10150771: "蓬莱仙岛",
     10152833: "召唤神龙",
     10154090: "仙途共聚",
-    10165359: "蛮荒妖域"
+    10165359: "蛮荒妖域",
+    10166427: "宗门大比"
+}
+
+const ACTIVITY_STATUS = {
+    0: "None",
+    None: 0,
+    1: "Show",
+    Show: 1,
+    2: "In",
+    In: 2,
+    Reward: 3,
+    3: "Reward",
+    4: "Settle",
+    Settle: 4
 }
 
 /**
@@ -123,8 +138,8 @@ export default class ActivityMgr {
         const actMainConfig = this.actMainConfigMap[activityId];
         // 先判断活动是否开始和结束
         const now = Date.now();
-        const notBegin = now < Number(actMainConfig.beginTime);
-        const hasEnd = now > Number(actMainConfig.endTime);
+        const notBegin = new BigNumber(now).isLessThan(new BigNumber(actMainConfig.beginTime));
+        const hasEnd = new BigNumber(now).isGreaterThan(new BigNumber(actMainConfig.endTime));
         if (notBegin || hasEnd) {
             logger.debug(`[活动管理] 活动: ${activityId} 名称: ${actNameMap[activityId] ?? "活动名称未知"} 未开始或已经结束`);
             return false;

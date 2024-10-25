@@ -462,6 +462,11 @@ class MsgRecvMgr {
         UnionBountyMgr.inst.UnionBountyOpenBountyEventResp(t);
     }
 
+    static UnionBountyOpenMonsterResp(t) {
+        logger.debug("[MsgRecvMgr] 妖兽打开返回结果");
+        UnionBountyMgr.inst.UnionBountyOpenMonsterResp(t);
+    }
+
     static SkyWarDataSync(t) {
         logger.debug("[MsgRecvMgr] 征战诸天初始化")
         SkyWarMgr.inst.SkyWarDataSync(t);

@@ -2,13 +2,12 @@ import Protocol from '#game/net/Protocol.js';
 import Stream from '#game/net/Stream.js';
 import ProtobufMgr from '#game/net/ProtobufMgr.js';
 import { NetSocket, NetState } from '#game/net/NetSocket.js';
-
 import logger from "#utils/logger.js";
 import AuthService from "#services/authService.js";
 import MsgRecvMgr from '#game/common/MsgRecvMgr.js';
 import LoopMgr from '#game/common/LoopMgr.js';
 import RegistMgr from '#game/common/RegistMgr.js';
-import WorkFlowMgr from '#game/common/WorkFlowMgr.js';
+
 
 class GameNetMgr {
     constructor() {
@@ -50,7 +49,7 @@ class GameNetMgr {
         logger.debug("[WebSocket] 开始心跳");
         GameNetMgr.inst.net.heartbeatStart();
         logger.debug("[LoopMgr] 开始循环任务");
-        setTimeout(() => {LoopMgr.inst.start();}, 2000);//延迟启动定时任务2s
+        setTimeout(() => { LoopMgr.inst.start(); }, 2000);//延迟启动定时任务2s
         // LoopMgr.inst.start()
         // WorkFlowMgr.inst.start()
     }
@@ -120,7 +119,7 @@ class GameNetMgr {
         };
     }
 
-    sendPbMsg(msgId, msgData, directSend = false) { 
+    sendPbMsg(msgId, msgData, directSend = false) {
         if (!this.net.isConnected()) {
             return;
         }
@@ -149,7 +148,7 @@ class GameNetMgr {
         t.set(stream.buff.subarray(0, stream.offset));
         stream.buff = t;
         stream.streamsize = stream.offset;
-        
+
         if (directSend) {
             this.net.send(stream.buff);
         } else {
@@ -167,7 +166,7 @@ class GameNetMgr {
 
         const sendNextMessage = () => {
             if (this.messageQueue.length > 0) {
-                const { msgId, msgData} = this.messageQueue.shift();
+                const { msgId, msgData } = this.messageQueue.shift();
                 this.sendPbMsg(msgId, msgData, true);
                 setTimeout(sendNextMessage, global.messageDelay);
             } else {
@@ -225,7 +224,7 @@ class GameNetMgr {
 
     async countdown(reconnectInterval) {
         let remainingTime = reconnectInterval / 1000;
-    
+
         const printCountdown = () => {
             if (remainingTime <= 10) {
                 logger.info(`剩余时间: ${remainingTime} 秒`);
@@ -241,7 +240,7 @@ class GameNetMgr {
                 return 30000; // 每30秒更新
             }
         };
-    
+
         // 开始倒计时
         while (remainingTime > 0) {
             const interval = printCountdown();
@@ -282,7 +281,7 @@ class GameNetMgr {
         try {
             // Login first, and then fetch the wsAddress and token
             let response;
-    
+
             try {
                 if (token && uid) {
                     logger.info("[Login] 尝试使用token登录...");
@@ -294,7 +293,7 @@ class GameNetMgr {
                 logger.warn("[Login] token登录失败, 尝试使用用户名密码登录...");
                 response = await authServiceInstance.Login(username, password, serverId);
             }
-    
+
             return response;
         } catch (error) {
             logger.error(error.message || error);

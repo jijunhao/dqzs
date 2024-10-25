@@ -83,7 +83,7 @@ message SkyWarFightRsp {
     optional int32 battleTimes = 6; 
 }
 message SkyWarSeparationSimplyInfo {
-    optional int64 fightValue = 1;
+    optional string fightValue = 1;
     optional int32 separationIndex = 2; 
 }
 message SkyWarRankData {

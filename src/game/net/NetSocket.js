@@ -184,5 +184,6 @@ class NetSocket {
 NetSocket.BYTES_OF_MSG_HEADER = 18;
 NetSocket.MSG_DATA_LENGTH = 256;
 NetSocket.HEADER = 29099;
+NetSocket.SIO_INDEX_KEY = "sioIndex";
 
 export { NetSocket, WSState, NetState };

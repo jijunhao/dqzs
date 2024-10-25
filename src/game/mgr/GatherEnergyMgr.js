@@ -111,13 +111,13 @@ export default class GatherEnergyMgr {
         const now = new Date();
         const nowHour = now.getHours();
 
-        let startTime;
+        let startTime = now;
         let endTime;
+        // 如果当前时间小于21点,就寻找当前到21点30分产量最高的，超过21点，就寻找到第二天10点半之前产量最高的
         if (nowHour < 21) {
             const today2130pmMS = new Date(now);
             today2130pmMS.setUTCHours(21, 30);
 
-            startTime = now;
             endTime = today2130pmMS;
         } else {
             const nextDay = new Date(now);
@@ -126,8 +126,7 @@ export default class GatherEnergyMgr {
             const nextDay10amMs = new Date(nextDay).setUTCHours(10, 0, 0, 0);
             const nextDay2130pmMs = new Date(nextDay).setUTCHours(21, 30, 0, 0);
 
-            startTime = nextDay10amMs;
-            endTime = nextDay2130pmMs;
+            endTime = nextDay10amMs;
         }
 
         
